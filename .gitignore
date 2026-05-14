@@ -1,0 +1,21 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Credentials
+.env
+profiles.yml
+
+# Data files
+data/raw/
+data/synthetic/
+
+# dbt (added in Phase 1)
+target/
+dbt_packages/
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
