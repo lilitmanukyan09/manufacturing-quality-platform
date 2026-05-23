@@ -24,7 +24,7 @@ Reproducibility:
 
 import pandas as pd
 from datetime import datetime
-import os
+
 
 # ── Configuration ─────────────────────────────────────────
 INPUT_PATH = "data/raw/ai4i2020.csv"
