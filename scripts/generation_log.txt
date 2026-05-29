@@ -1,0 +1,64 @@
+
+==================================================
+generate_machine_assignments.py
+Run timestamp: 2026-05-16T17:33:22.047612
+Reset points detected: 119
+Actual block boundaries chosen:
+  M001: starts at UDI 1
+  M002: starts at UDI 2504
+  M003: starts at UDI 5064
+  M004: starts at UDI 7512
+Output: data/raw/machine_assignments.csv
+
+==================================================
+generate_machines.py
+Run timestamp: 2026-05-17T12:27:29.314386
+Cycle duration assumption: 1 hour(s)
+Reference date: 2022-01-03
+Rated tool life: 220 min
+Installation dates derived:
+  M001: 2022-01-03
+  M002: 2022-04-17
+  M003: 2022-08-01
+  M004: 2022-11-11
+Output: data/synthetic/machines.csv
+
+==================================================
+generate_maintenance_log.py
+Run timestamp: 2026-05-22T12:23:44.944744
+Total maintenance events: 119
+Scheduled: 64
+Unscheduled: 55
+Random seed: 42
+Output: data/synthetic/maintenance_log.csv
+
+==================================================
+generate_shifts.py
+Run timestamp: 2026-05-22T12:32:49.109337
+Total shift slots generated: 1251
+Shift distribution:
+  Morning: 417
+  Afternoon: 417
+  Night: 417
+Output: data/synthetic/shifts.csv
+
+==================================================
+generate_operators.py
+Run timestamp: 2026-05-22T12:36:35.396937
+Total operators: 20
+Random seed: 42
+Experience distribution:
+  Junior: 13
+  Mid: 4
+  Senior: 3
+Certification distribution:
+  CNC_Operation: 17
+  CNC_Programming: 3
+Output: data/synthetic/operators.csv
+
+==================================================
+generate_operator_assignments.py
+Run timestamp: 2026-05-29T20:23:35.953375
+Total assignments: 10000
+Fallback assignments: 0
+Output: data/raw/operator_assignments.csv
