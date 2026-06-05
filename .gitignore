@@ -19,3 +19,7 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+#Snowflake key pair auth
+snowflake_key_pub.p8
+snowflake_key.p8
