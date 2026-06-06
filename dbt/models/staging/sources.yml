@@ -1,0 +1,207 @@
+version: 2
+
+sources:
+  - name: raw
+    database: MANUFACTURING_QUALITY
+    schema: RAW
+    description: "Raw source data and machine assignments from AI4I dataset and synthetic generation"
+    tables:
+      - name: ai4i_sensor_readings
+        description: "Raw sensor readings from the AI4I 2020 predictive maintenance dataset. One row per production cycle with process parameters and failure flags."
+        columns:
+          - name: udi
+            description: "Unique identifier for each production cycle"
+            tests:
+              - unique
+              - not_null
+          - name: product_id
+            description: "Product variant identifier (L/M/H grade material)"
+          - name: type
+            description: "Product type classification"
+          - name: air_temperature
+            description: "Air temperature in Kelvin"
+          - name: process_temperature
+            description: "Process temperature in Kelvin"
+          - name: rotational_speed
+            description: "Machine spindle rotational speed in RPM"
+          - name: torque
+            description: "Applied torque in Newton-meters"
+          - name: tool_wear
+            description: "Accumulated tool wear in minutes"
+          - name: machine_failure
+            description: "Flag indicating any failure occurred in this cycle (0=no failure, 1=failure)"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [0, 1]
+          - name: twf
+            description: "Tool wear failure flag (0=no, 1=yes)"
+            tests:
+              - accepted_values:
+                  values: [0, 1]
+          - name: hdf
+            description: "Heat dissipation failure flag (0=no, 1=yes)"
+            tests:
+              - accepted_values:
+                  values: [0, 1]
+          - name: pwf
+            description: "Power failure flag (0=no, 1=yes)"
+            tests:
+              - accepted_values:
+                  values: [0, 1]
+          - name: osf
+            description: "Overstress failure flag (0=no, 1=yes)"
+            tests:
+              - accepted_values:
+                  values: [0, 1]
+          - name: rnf
+            description: "Random failure flag (0=no, 1=yes) — excluded from precursor analysis"
+            tests:
+              - accepted_values:
+                  values: [0, 1]
+
+      - name: machine_assignments
+        description: "Machine assignment mapping showing which UDIs belong to which machine. Derived by partitioning source dataset into sequential blocks snapped to tool wear reset points."
+        columns:
+          - name: udi
+            description: "Unique identifier for each production cycle"
+            tests:
+              - unique
+              - not_null
+          - name: machine_id
+            description: "Machine identifier (M001-M004)"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['M001', 'M002', 'M003', 'M004']
+          - name: tool_wear
+            description: "Tool wear value at this cycle"
+          - name: is_reset_point
+            description: "Flag indicating this cycle is a tool wear reset point (True=reset, False=no reset)"
+            tests:
+              - not_null
+          - name: tool_life_number
+            description: "Sequential number of this tool life cycle (resets at reset points)"
+
+      - name: operator_assignments
+        description: "Operator assignment mapping showing which operator was assigned to each UDI. Operators are assigned by machine group, shift preference, and weekly rotation."
+        columns:
+          - name: udi
+            description: "Unique identifier for each production cycle"
+            tests:
+              - unique
+              - not_null
+          - name: machine_id
+            description: "Machine identifier"
+            tests:
+              - not_null
+          - name: operator_id
+            description: "Assigned operator identifier"
+            tests:
+              - not_null
+
+  - name: raw_synthetic
+    database: MANUFACTURING_QUALITY
+    schema: RAW_SYNTHETIC
+    description: "Synthetically generated dimension and operational context tables"
+    tables:
+      - name: machines
+        description: "Machine dimension. One row per CNC machine with installation date, type, and rated tool life."
+        columns:
+          - name: machine_id
+            description: "Unique machine identifier"
+            tests:
+              - unique
+              - not_null
+          - name: machine_type
+            description: "Type of machine (Milling or Turning)"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['Milling', 'Turning']
+          - name: manufacturer
+            description: "Machine manufacturer name"
+          - name: installation_date
+            description: "Date and time machine was installed and started operations"
+            tests:
+              - not_null
+          - name: rated_tool_life_min
+            description: "Rated tool life in minutes before replacement needed"
+          - name: location_in_plant
+            description: "Physical location of machine in plant"
+          - name: is_active
+            description: "Flag indicating machine is currently active"
+
+      - name: maintenance_log
+        description: "Tool replacement and maintenance events. One row per reset point with maintenance type, date, and duration."
+        columns:
+          - name: maintenance_id
+            description: "Unique maintenance event identifier"
+            tests:
+              - unique
+              - not_null
+          - name: machine_id
+            description: "Machine that received maintenance"
+            tests:
+              - not_null
+          - name: udi
+            description: "UDI at which maintenance occurred (reset point)"
+          - name: maintenance_date
+            description: "Date and time of maintenance event"
+          - name: maintenance_type
+            description: "Type of maintenance performed"
+            tests:
+              - accepted_values:
+                  values: ['Tool Replacement', 'Preventive Maintenance', 'Unscheduled Maintenance']
+          - name: tool_replaced_flag
+            description: "Flag indicating tool was replaced"
+          - name: duration_min
+            description: "Duration of maintenance work in minutes"
+
+      - name: operators
+        description: "Operator dimension. One row per CNC machine operator with experience level, hire date, and certifications."
+        columns:
+          - name: operator_id
+            description: "Unique operator identifier"
+            tests:
+              - unique
+              - not_null
+          - name: experience_level
+            description: "Operator experience tier"
+            tests:
+              - accepted_values:
+                  values: ['Junior', 'Mid', 'Senior']
+          - name: hire_date
+            description: "Date operator was hired"
+          - name: certification_type
+            description: "Type of CNC certification"
+            tests:
+              - accepted_values:
+                  values: ['CNC_Operation', 'CNC_Programming']
+          - name: primary_shift
+            description: "Shift operator is primarily assigned to"
+            tests:
+              - accepted_values:
+                  values: ['Morning', 'Afternoon', 'Night']
+
+      - name: shifts
+        description: "Shift dimension. One row per shift slot covering the full operating period with supervisor assignment."
+        columns:
+          - name: shift_id
+            description: "Unique shift identifier"
+            tests:
+              - unique
+              - not_null
+          - name: shift_name
+            description: "Name of shift"
+            tests:
+              - accepted_values:
+                  values: ['Morning', 'Afternoon', 'Night']
+          - name: shift_date
+            description: "Calendar date of shift"
+          - name: shift_start
+            description: "Start time of shift"
+          - name: shift_end
+            description: "End time of shift"
+          - name: supervisor_id
+            description: "Supervisor responsible for this shift"
