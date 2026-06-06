@@ -23,3 +23,8 @@ Thumbs.db
 #Snowflake key pair auth
 snowflake_key_pub.p8
 snowflake_key.p8
+
+# dbt artifacts
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
